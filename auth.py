@@ -1,5 +1,5 @@
 from flask import Blueprint,jsonify,request
-from flask_jwt_extended import create_access_token,create_refresh_token,jwt_required,get_jwt
+from flask_jwt_extended import create_access_token,create_refresh_token,jwt_required,get_jwt,current_user
 from models import User
 
 auth_blueprint=Blueprint('auth',__name__)
@@ -38,8 +38,7 @@ def login():
 @auth_blueprint.route('/who',methods=["GET"])
 @jwt_required()
 def who():
-    claims=get_jwt()
-    return jsonify({"message":"Message about ","claims":claims})
+    return jsonify({"message":"Message about ","userdetail":{"username":current_user.username,"email":current_user.email}})
 
 
         

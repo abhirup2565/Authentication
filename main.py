@@ -3,6 +3,7 @@ from extensions import db,jwt
 from dotenv import load_dotenv
 from auth import auth_blueprint
 from users import user_blueprint
+from models import User
 load_dotenv()
 
 def create_app():
@@ -20,6 +21,11 @@ def create_app():
     app.register_blueprint(auth_blueprint)
     app.register_blueprint(user_blueprint)
 
+    #load users
+    @jwt.user_lookup_loader
+    def user_lookup_callback(_jwt_header,jwt_data):
+        identity=jwt_data['sub']
+        return User.query.filter_by(username=identity).one_or_none()
 
     #addition claims for jwt
     @jwt.additional_claims_loader
