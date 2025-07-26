@@ -21,6 +21,14 @@ def create_app():
     app.register_blueprint(user_blueprint)
 
 
+    #addition claims for jwt
+    @jwt.additional_claims_loader
+    def make_additional_claims(identity):
+        if identity=="abhirup":
+            return{"is_staff":True}
+        return{"is_staff":False}
+
+
     #jwt error handler
     @jwt.expired_token_loader
     def expired_token_callback(jwt_header,jwt_data):
