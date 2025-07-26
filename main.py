@@ -2,6 +2,7 @@ from flask import Flask
 from extensions import db,jwt
 from dotenv import load_dotenv
 from auth import auth_blueprint
+from users import user_blueprint
 load_dotenv()
 
 def create_app():
@@ -13,7 +14,7 @@ def create_app():
     jwt.init_app(app)
     #intialising blueprint
     app.register_blueprint(auth_blueprint)
-
+    app.register_blueprint(user_blueprint)
     return app
 
 
