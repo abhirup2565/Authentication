@@ -3,7 +3,7 @@ from extensions import db,jwt
 from dotenv import load_dotenv
 from auth import auth_blueprint
 from users import user_blueprint
-from models import User
+from models import User,TokenBlockList
 load_dotenv()
 
 def create_app():
@@ -47,6 +47,12 @@ def create_app():
     @jwt.unauthorized_loader
     def missing_token_callback(error):
         return jsonify({"message":"Request does not contain valid token","error":"authorization_header"}),401
+
+    @jwt.token_in_blocklist_loader
+    def token_in_blocklist_callback(jwt_header,jwt_data):
+        jti = jwt_data['jti']
+        token=db.session.query(TokenBlockList).filter(TokenBlockList.jti==jti).scalar()
+        return token is not None
 
 
     return app

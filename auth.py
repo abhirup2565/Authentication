@@ -1,6 +1,6 @@
 from flask import Blueprint,jsonify,request
 from flask_jwt_extended import create_access_token,create_refresh_token,jwt_required,get_jwt,current_user,get_jwt_identity
-from models import User
+from models import User,TokenBlockList
 
 auth_blueprint=Blueprint('auth',__name__)
 
@@ -47,6 +47,16 @@ def refresh_access():
     access_token=create_access_token(identity=identity)
     return jsonify({"New_Access_Token":access_token})
 
+@auth_blueprint.route('/logout',methods=["GET"])
+@jwt_required(verify_type=False)
+def logout():
+    jwt=get_jwt()
+    jti=jwt['jti']
+    token_type=jwt['type']
+    token_block_list=TokenBlockList(jti=jti)
+    token_block_list.save()
+
+    return jsonify({"message":f"{token_type} is revoked successfully",}),200
 
 
         
