@@ -1,1 +1,1 @@
-Using FLASK-JWT for authentication  
+Using FLASK-JWT for authentication.
