@@ -1,13 +1,18 @@
 from flask import Flask
 from extensions import db
 from dotenv import load_dotenv
-from models import User
+from auth import auth_blueprint
 load_dotenv()
 
 def create_app():
     app=Flask(__name__)
+    #config file
     app.config.from_prefixed_env()
+    #initialising extendions
     db.init_app(app)
+    #intialising blueprint
+    app.register_blueprint(auth_blueprint)
+
     return app
 
 
