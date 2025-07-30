@@ -1,0 +1,66 @@
+from flask import Flask,jsonify
+from extensions import db,jwt
+from dotenv import load_dotenv
+from auth import auth_blueprint
+from users import user_blueprint
+from models import User,TokenBlockList
+load_dotenv()
+
+def create_app():
+    app=Flask(__name__)
+    #config file
+    app.config.from_prefixed_env()
+
+
+    #initialising extentions
+    db.init_app(app)
+    jwt.init_app(app)
+
+
+    #intialising blueprint
+    app.register_blueprint(auth_blueprint)
+    app.register_blueprint(user_blueprint)
+
+    #load users
+    @jwt.user_lookup_loader
+    def user_lookup_callback(_jwt_header,jwt_data):
+        identity=jwt_data['sub']
+        return User.query.filter_by(username=identity).one_or_none()
+
+    #addition claims for jwt
+    @jwt.additional_claims_loader
+    def make_additional_claims(identity):
+        if identity=="abhirup":
+            return{"is_staff":True}
+        return{"is_staff":False}
+
+
+    #jwt error handler
+    @jwt.expired_token_loader
+    def expired_token_callback(jwt_header,jwt_data):
+        return jsonify({"message":"Token is expired","error":"Token expired"}),401
+    
+    @jwt.invalid_token_loader
+    def invalid_token_callback(error):
+        return jsonify({"message":"Signature verification failed","error":"invalid token"}),401
+    
+    @jwt.unauthorized_loader
+    def missing_token_callback(error):
+        return jsonify({"message":"Request does not contain valid token","error":"authorization_header"}),401
+
+    @jwt.token_in_blocklist_loader
+    def token_in_blocklist_callback(jwt_header,jwt_data):
+        jti = jwt_data['jti']
+        token=db.session.query(TokenBlockList).filter(TokenBlockList.jti==jti).scalar()
+        return token is not None
+
+
+    return app
+
+
+app=create_app()
+
+if __name__=="__main__":
+    with app.app_context():
+        db.create_all()
+    app.run()
