@@ -1,9 +1,6 @@
 from flask import Flask,jsonify
-from extensions import db,jwt
+from app.extensions import db,jwt
 from dotenv import load_dotenv
-from auth import auth_blueprint
-from users import user_blueprint
-from models import User,TokenBlockList
 load_dotenv()
 
 def create_app():
@@ -11,19 +8,20 @@ def create_app():
     #config file
     app.config.from_prefixed_env()
 
-
     #initialising extentions
     db.init_app(app)
     jwt.init_app(app)
 
-
     #intialising blueprint
+    from app.blueprints import auth_blueprint
+    from app.blueprints import user_blueprint
     app.register_blueprint(auth_blueprint)
     app.register_blueprint(user_blueprint)
 
     #load users
     @jwt.user_lookup_loader
     def user_lookup_callback(_jwt_header,jwt_data):
+        from app.models.users import User
         identity=jwt_data['sub']
         return User.query.filter_by(username=identity).one_or_none()
 
@@ -33,7 +31,6 @@ def create_app():
         if identity=="abhirup":
             return{"is_staff":True}
         return{"is_staff":False}
-
 
     #jwt error handler
     @jwt.expired_token_loader
@@ -50,17 +47,9 @@ def create_app():
 
     @jwt.token_in_blocklist_loader
     def token_in_blocklist_callback(jwt_header,jwt_data):
+        from app.models.token import TokenBlockList
         jti = jwt_data['jti']
         token=db.session.query(TokenBlockList).filter(TokenBlockList.jti==jti).scalar()
         return token is not None
 
-
     return app
-
-
-app=create_app()
-
-if __name__=="__main__":
-    with app.app_context():
-        db.create_all()
-    app.run()

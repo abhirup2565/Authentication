@@ -1,8 +1,14 @@
 from flask import Blueprint,jsonify,request
-from flask_jwt_extended import create_access_token,create_refresh_token,jwt_required,get_jwt,current_user,get_jwt_identity
-from models import User,TokenBlockList
+from flask_jwt_extended import (
+    create_access_token,
+    create_refresh_token,
+    jwt_required,get_jwt,
+    current_user,
+    get_jwt_identity)
+from app.models import User,TokenBlockList
 
 auth_blueprint=Blueprint('auth',__name__)
+
 
 @auth_blueprint.route('/register',methods=['POST'])
 def register_user():
@@ -55,7 +61,6 @@ def logout():
     token_type=jwt['type']
     token_block_list=TokenBlockList(jti=jti)
     token_block_list.save()
-
     return jsonify({"message":f"{token_type} is revoked successfully",}),200
 
 
