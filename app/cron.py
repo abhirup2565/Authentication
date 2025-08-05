@@ -1,12 +1,10 @@
-from .models import TokenBlockList
-from .extensions import db,scheduler
+import requests
 
  #CRON JOB
 def scheduledTask():
     try:
-            db.session.query(TokenBlockList).delete()
-            db.session.commit()
-            print("executed cron job")
+        response=requests.delete('http://127.0.0.1:5000/deleteblockList')
+        print(response.json())
     except Exception as e:
-        print("could not execute cron job ",e)
+        print("could not execute cron job ",str(e))
     

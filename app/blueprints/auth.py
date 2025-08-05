@@ -1,3 +1,4 @@
+import requests
 from flask import Blueprint,jsonify,request
 from flask_jwt_extended import (
     create_access_token,
@@ -95,6 +96,7 @@ def clear_blockList():
         return jsonify({"message":"No expired token in db"})
     except Exception as e:
         return jsonify({"Something went wrong":str(e)})
+
 
         
 

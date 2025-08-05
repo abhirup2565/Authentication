@@ -11,7 +11,6 @@ def create_app():
     #initialising extentions
     db.init_app(app)
     jwt.init_app(app)
-    scheduler.init_app(app)
 
     #intialising blueprint
     from app.blueprints import auth_blueprint
