@@ -30,11 +30,12 @@ def register_user():
 
 @auth_blueprint.route('/login',methods=["POST"])
 def login():
+    from datetime import timedelta
     data=request.get_json()
     user=User.get_user_by_username(username=data.get('username'))
     if user and user.check_password(password=data.get('password')):
-        access_token=create_access_token(identity=user.username)
-        refresh_token=create_refresh_token(identity=user.username)
+        access_token=create_access_token(identity=user.username,expires_delta=timedelta(minutes=10))
+        refresh_token=create_refresh_token(identity=user.username,expires_delta=timedelta(minutes=20) )
         print(access_token," and ",refresh_token)
         return jsonify({
                 "Message":"logged in successfully",
@@ -68,7 +69,6 @@ def logout():
     return jsonify({"message":f"{token_type} is revoked successfully",}),200
 
 @auth_blueprint.route('/blockList',methods=["GET"])
-@jwt_required()
 def view_blockList():
     from app.schemas import TokenBlockListSchema
     try:
@@ -82,16 +82,19 @@ def view_blockList():
         return jsonify({"Something went wrong":str(e)})
 
 @auth_blueprint.route('/deleteblockList',methods=["DELETE"])
-@jwt_required()
 def clear_blockList():
+    from datetime import datetime,timedelta,timezone
+    from app.models import TokenBlockList
     try:
-        deleteBlockList()
-        return jsonify({"message":"all blocklist has been deleted"})
+        expiryTime = datetime.now(timezone.utc) - timedelta(minutes=10)
+        expirytokens = TokenBlockList.query.filter(TokenBlockList.created_at < expiryTime).all()
+        if expirytokens:
+            for expirytoken in expirytokens:
+                expirytoken.deleteBlockList()
+            return jsonify({"message":"all expired token were deleted"})
+        return jsonify({"message":"No expired token in db"})
     except Exception as e:
         return jsonify({"Something went wrong":str(e)})
 
         
-def deleteBlockList():
-        from app.extensions import db
-        TokenBlockList.query.delete()
-        db.session.commit() 
+

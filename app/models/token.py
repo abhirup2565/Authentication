@@ -13,3 +13,7 @@ class TokenBlockList(db.Model):
     def save(self):
         db.session.add(self)
         db.session.commit()
+    
+    def deleteBlockList(self):
+        db.session.delete(self)
+        db.session.commit() 
