@@ -1,5 +1,5 @@
 from flask import Flask,jsonify
-from app.extensions import db,jwt
+from app.extensions import db,jwt,scheduler
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -11,6 +11,7 @@ def create_app():
     #initialising extentions
     db.init_app(app)
     jwt.init_app(app)
+    scheduler.init_app(app)
 
     #intialising blueprint
     from app.blueprints import auth_blueprint

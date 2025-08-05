@@ -1,6 +1,12 @@
-from flask_apscheduler import APScheduler
+from .models import TokenBlockList
+from .extensions import db,scheduler
 
-scheduler=APScheduler() 
  #CRON JOB
 def scheduledTask():
-    print("Testing app scheduler")
+    try:
+            db.session.query(TokenBlockList).delete()
+            db.session.commit()
+            print("executed cron job")
+    except Exception as e:
+        print("could not execute cron job ",e)
+    
