@@ -26,7 +26,7 @@ def register_user():
         new_user.save()
         return jsonify({'message':'user created'}),201
     except Exception as e:
-        return jsonify({'Something went wrong':e}),500
+        return jsonify({'Something went wrong':str(e)}),500
 
 
 @auth_blueprint.route('/login',methods=["POST"])
@@ -82,7 +82,7 @@ def view_blockList():
     except Exception as e:
         return jsonify({"Something went wrong":str(e)})
 
-@auth_blueprint.route('/deleteblockList',methods=["DELETE"])
+@auth_blueprint.route('/clearblocklist',methods=["DELETE"])
 def clear_blockList():
     from datetime import datetime,timedelta,timezone
     from app.models import TokenBlockList
