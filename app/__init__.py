@@ -1,5 +1,5 @@
 from flask import Flask,jsonify
-from app.extensions import db,jwt
+from app.extensions import db,jwt,scheduler
 from dotenv import load_dotenv
 load_dotenv()
 
