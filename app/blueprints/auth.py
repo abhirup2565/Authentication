@@ -1,4 +1,3 @@
-import requests
 from flask import Blueprint,jsonify,request
 from flask_jwt_extended import (
     create_access_token,
